@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base de datos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 80%;
+            max-width: 1200px;
+            text-align: center;
+        }
+        h1 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        p.warning {
+            color: #e67e22;
+            font-size: 14px;
+            margin-top: 0;
+        }
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 80%;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #3498db;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        #search-results {
+            margin-top: 20px;
+        }
+        .no-results {
+            color: #e74c3c;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Buscar Datos</h1>
+        <p class="warning">La búsqueda puede demorar unos segundos</p>
+        <input type="text" id="search" placeholder="Buscar...">
+        <button onclick="searchData()">Buscar</button>
+        <div id="search-results">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>PADRON</th>
+                        <th>PROPIETARIO</th>
+                        <th>DOMICILIO</th>
+                        <th>MATRICULA</th>
+                        <th>PROPIEDAD</th>
+                        <th>SUP/TIT</th>
+                        <th>SUP/MEN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aquí se llenarán los datos -->
+                </tbody>
+            </table>
+            <div id="no-results" class="no-results" style="display: none;">No se encontraron resultados</div>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = 'https://script.google.com/macros/s/AKfycby-WMIhn_7CLt6PznnMaPU2nHH1GCwiE9fXJbr0x_m0uaV1FBwtlfuLiFxw_HrDl063vg/exec'; // Reemplaza con tu enlace de Web App
+        let allData = [];
+
+        function fetchData() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Datos cargados:", data); // Verifica la carga del JSON
+                    allData = data.slice(1); // Ajusta según el formato de datos
+                    console.log("Datos procesados:", allData); // Verifica los datos procesados
+                    searchData(); // Cargar datos iniciales
+                })
+                .catch(error => console.error('Error al cargar los datos:', error));
+        }
+
+        function searchData() {
+            const input = document.getElementById('search');
+            const filter = input.value.toUpperCase();
+            const tableBody = document.querySelector('#data-table tbody');
+            const noResultsDiv = document.getElementById('no-results');
+            tableBody.innerHTML = '';
+            noResultsDiv.style.display = 'none';
+
+            if (allData.length === 0) {
+                console.log("No hay datos para buscar.");
+                return;
+            }
+
+            let resultsFound = false;
+
+            allData.forEach((cells, index) => {
+                console.log(`Fila ${index}:`, cells); // Verifica cada fila de datos
+                if (cells.some(cell => String(cell).toUpperCase().includes(filter))) {
+                    const rowElement = document.createElement('tr');
+                    cells.forEach(cell => {
+                        const cellElement = document.createElement('td');
+                        cellElement.textContent = cell;
+                        rowElement.appendChild(cellElement);
+                    });
+                    tableBody.appendChild(rowElement);
+                    resultsFound = true;
+                }
+            });
+
+            if (!resultsFound) {
+                noResultsDiv.style.display = 'block';
+            }
+        }
+
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
